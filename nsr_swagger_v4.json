@@ -1,0 +1,1495 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Nasjonalt skoleregister API",
+    "description": "Data fra Nasjonalt skoleregister (NSR) viser enheter fra Brønnøysundregisteret (Brreg) som tilhører grunnutdanningen. Skolene (virksomhetene) og deres eiere (foretak) skal være avstemt med Brreg. NSR viser også Norske skoler i utlandet og inneholder noe tilleggsinformasjon utover det som fins i Brreg.<br><br>\r\n                  Ønsker du melding ved endring eller driftshendelser send en epost til <a href=\"mailto:nxr-teknisk@udir.no?subject=Nasjonalt api for skoler\">nxr-teknisk@udir.no</a>. Bruk samme epost for å avregistrere.<br><br>\r\n                  Data importeres fra Brreg i tidsrommet 01:00-02:00.<br><br>\r\n                  <a target=\"_blank\" href=\"https://nsr.udir.no\">Nasjonalt skoleregister</a><br>\r\n                  <a target=\"_blank\" href=\"https://data.norge.no/datasets/d8431635-2ae6-40af-b0ec-8869a2fa3f89\">Felles datakatalog</a>",
+    "license": {
+      "name": "Lisens: Norsk lisens for offentlige data (NLOD)",
+      "url": "https://data.norge.no/nlod/no"
+    },
+    "version": "4.0"
+  },
+  "paths": {
+    "/v4/enhet/{organisasjonsnummer}": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "En enhet",
+        "description": "Returnerer en enhet basert på organisasjonsnummer.",
+        "operationId": "GetEnhet",
+        "parameters": [
+          {
+            "name": "organisasjonsnummer",
+            "in": "path",
+            "description": "Organisasjonsnummer",
+            "required": true,
+            "schema": {
+              "minLength": 9,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnhetApiModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/innlogget/enhet/{organisasjonsnummer}": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "En enhet, med kontaktinfo. Krever pålogging.",
+        "description": "Returnerer en enhet basert på organisasjonsnummer.",
+        "operationId": "GetInnloggetEnhet",
+        "parameters": [
+          {
+            "name": "organisasjonsnummer",
+            "in": "path",
+            "description": "Organisasjonsnummer",
+            "required": true,
+            "schema": {
+              "minLength": 9,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrInnloggetEnhetApiModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/enheter": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Alle enheter",
+        "description": "Returnerer alle enheter i registeret.\r\n            Søkeresultatet er paginert med en standard sidestørrelse på 1000 enheter.",
+        "operationId": "GetEnheter",
+        "parameters": [
+          {
+            "name": "sidenummer",
+            "in": "query",
+            "description": "Første side er nummer 1.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "antallperside",
+            "in": "query",
+            "description": "Antall enheter per side. Standard sidestørrelse er 1000.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnhetEnkelApiModelApiPageResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sidenummer og AntallPerSide må være 1 eller større."
+          }
+        }
+      }
+    },
+    "/v4/enheter/endretetter": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Enheter endret",
+        "description": "Returnerer alle enheter i registeret det er registrert endringer på etter gitt dato.\r\n            Mange datoformater godtas, men kun norsk tidssone.\r\n\r\n            Eksempler:\r\n\r\n            2024.01.01\r\n\r\n            2024-01-01 12:00:00\r\n\r\n            2024-01-01T12:00:00",
+        "operationId": "GetEnheterEndretEtterDato",
+        "parameters": [
+          {
+            "name": "dato",
+            "in": "query",
+            "description": "Enheter som er endret etter dato",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnheterEnkelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/enheter/kommune/{kommunenummer}": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Alle enheter i kommune",
+        "description": "Returnerer alle enheter i kommune.",
+        "operationId": "GetEnheterInKommune",
+        "parameters": [
+          {
+            "name": "kommunenummer",
+            "in": "path",
+            "description": "Kommunenummer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnheterEnkelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/enheter/fylke/{fylkesnummer}": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Alle enheter i fylke",
+        "description": "Returnerer alle enheter i fylke.",
+        "operationId": "GetEnheterInFylke",
+        "parameters": [
+          {
+            "name": "fylkesnummer",
+            "in": "path",
+            "description": "Fylkesnummer",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnheterEnkelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/enheter/skolekategori/{skolekategoriid}": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Alle enheter med skolekategori",
+        "description": "Returnerer alle enheter som inneholder gitt skolekategori.",
+        "operationId": "GetEnheterWithSkolekategori",
+        "parameters": [
+          {
+            "name": "skolekategoriid",
+            "in": "path",
+            "description": "SkolekategoriId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnheterEnkelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/enheter/naeringskode/{naeringskode}": {
+      "get": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Alle enheter med næringskode",
+        "description": "Returnerer alle enheter som inneholder gitt næringskode.",
+        "operationId": "GetEnheterWithNaeringskode",
+        "parameters": [
+          {
+            "name": "naeringskode",
+            "in": "path",
+            "description": "Naeringskode",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnheterEnkelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/enheter/sok": {
+      "post": {
+        "tags": [
+          "Enhet"
+        ],
+        "summary": "Søk i enheter",
+        "description": "Returnerer enheter basert på søkekriterier. Requesten må inneholde et objekt som vist under.\r\n\r\n\r\n             Her kan du kombinere søkekriterier som søkestreng, næringskode, skolekategori, fylke og kommune samt filtrering på om du vil ha kun skoler,\r\n             skoleeiere eller andre enheter som f.eks organisasjonsledd. Du kan også filtrere på om du vil\r\n             ha aktive eller nedlagte enheter.\r\n             Ved behov om å ytterligere filtrering og funksjonalitet kan hele datagrunnlag for registere hentes i metoden /enheter.\r\n            \r\n             EGENSKAPER:\r\n             FritekstSoek - Begrens til enheter med organisasjonsnummer, navn eller karakteristikk\r\n             Naeringskode - Begrens til enheter med næringskode\r\n             SkolekategoriId - Begrens til enheter med skolekategori\r\n             Fylkesnummer - Begrens til enheter i fylke\r\n             Kommunenummer - Begrens til enheter i kommune\r\n            \r\n             InkluderAktive - Enheter som er aktive\r\n             InkluderNedlagte - Enheter som ikke er aktive\r\n             InkluderAndreEnheter - Enheter som ikke er skoler eller skoleeiere\r\n             InkluderEiere - Enheter som eier en skole\r\n             InkluderSkoler - Enheter som er skole\r\n            \r\n             MERK:\r\n             En av egenskapene fritekstsøk, fylke, kommune, næringskode eller skolekategori må med for å få tilbake enheter.\r\n             Disse kan kombineres med de boolske egenskapene.\r\n             Eksempler:\r\n             Hvis du ønsker å ikke ha med utgåtte enheter legger du med \"InkluderAktive\": true\r\n             Hvis du ønsker kun nedlagte skoler i Oslo sender du med \"Fylkesnummer\": \"03\", \"InkluderNedlagte\": true, \"InkluderSkoler\": true\r\n             Hvis ingen boolske properties er angitt så er det, det samme som at alle står til true.",
+        "operationId": "Sok",
+        "requestBody": {
+          "description": "Søkekriterier",
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            },
+            "application/*+xml": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SoekNsrApiModel"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NsrEnheterEnkelResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/naeringskoder": {
+      "get": {
+        "tags": [
+          "Naeringskode"
+        ],
+        "summary": "Skole næringskoder",
+        "description": "Returnerer alle næringskoder som tilhører undervisning.",
+        "operationId": "GetNaeringskoder",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NaeringkodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/maalformer": {
+      "get": {
+        "tags": [
+          "Typer"
+        ],
+        "summary": "Alle målformer",
+        "description": "Returnerer alle målformer.",
+        "operationId": "GetMaalformer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaalformResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/organisasjonsformer": {
+      "get": {
+        "tags": [
+          "Typer"
+        ],
+        "summary": "Alle organisajonsformer",
+        "description": "Returnerer alle organisasjonsformer.",
+        "operationId": "GetOrganisasjonsformer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganisasjonsformResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/utgaattyper": {
+      "get": {
+        "tags": [
+          "Typer"
+        ],
+        "summary": "Alle utgått-typer",
+        "description": "Returnerer alle utgått-typer.",
+        "operationId": "GetUtgaattyper",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtgaattypeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/relasjonstyper": {
+      "get": {
+        "tags": [
+          "Typer"
+        ],
+        "summary": "Relasjonstyper for skoler",
+        "description": "Returnerer alle relasjonstyper for skoleregisteret.",
+        "operationId": "GetRelasjoner",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelasjonstypeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v4/skolekategorier": {
+      "get": {
+        "tags": [
+          "Typer"
+        ],
+        "summary": "Alle skolekategorier",
+        "description": "Returnerer alle skolekategorier.",
+        "operationId": "GetSkolekategorier",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkolekategoriResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdresseApiModel": {
+        "type": "object",
+        "properties": {
+          "Adresse": {
+            "type": "string",
+            "nullable": true
+          },
+          "Postnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Poststed": {
+            "type": "string",
+            "nullable": true
+          },
+          "Land": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnhetMinimumApiModel": {
+        "type": "object",
+        "properties": {
+          "Organisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnhetNaeringskodeApiModel": {
+        "type": "object",
+        "properties": {
+          "Prioritet": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Kode": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Versjon": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FylkeApiModel": {
+        "type": "object",
+        "properties": {
+          "Fylkesnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Organisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "StatsforvalterOrganisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Hjelpeenhetskode": {
+        "type": "object",
+        "properties": {
+          "Kode": {
+            "type": "string",
+            "nullable": true
+          },
+          "Beskrivelse": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "KommuneApiModel": {
+        "type": "object",
+        "properties": {
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Kommunenummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Organisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "ErNedlagt": {
+            "type": "boolean"
+          },
+          "Fylkesnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Kostragruppe": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KostragruppeApiModel"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "KoordinatApiModel": {
+        "type": "object",
+        "properties": {
+          "Lengdegrad": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "Breddegrad": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "Zoom": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "GeoKilde": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "KostragruppeApiModel": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MaalformApiModel": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MaalformResponse": {
+        "type": "object",
+        "properties": {
+          "MaalformListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MaalformApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NaeringkodeResponse": {
+        "type": "object",
+        "properties": {
+          "NaeringskodeListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NaeringskodeApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NaeringskodeApiModel": {
+        "type": "object",
+        "properties": {
+          "Kode": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Versjon": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NsrEnhetApiModel": {
+        "type": "object",
+        "properties": {
+          "Organisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Karakteristikk": {
+            "type": "string",
+            "nullable": true
+          },
+          "FulltNavn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Fylke": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FylkeApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Kommune": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KommuneApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Beliggenhetsadresse": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdresseApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Postadresse": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdresseApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Koordinat": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KoordinatApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Internettadresse": {
+            "type": "string",
+            "nullable": true
+          },
+          "Maalform": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MaalformApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Organisasjonsform": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrganisasjonsformApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Naeringskoder": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnhetNaeringskodeApiModel"
+            },
+            "nullable": true
+          },
+          "Hjelpeenhetskode": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Hjelpeenhetskode"
+              }
+            ],
+            "nullable": true
+          },
+          "Utgaattype": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UtgaattypeApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "UtgaattDato": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ErAktiv": {
+            "type": "boolean"
+          },
+          "ErEkskludert": {
+            "type": "boolean"
+          },
+          "ErSkole": {
+            "type": "boolean"
+          },
+          "ErSkoleeier": {
+            "type": "boolean"
+          },
+          "ErGrunnskole": {
+            "type": "boolean"
+          },
+          "ErPrivatskole": {
+            "type": "boolean"
+          },
+          "ErOffentligSkole": {
+            "type": "boolean"
+          },
+          "ErVideregaaendeSkole": {
+            "type": "boolean"
+          },
+          "ErSpesialskole": {
+            "type": "boolean"
+          },
+          "ErGrunnopplaering": {
+            "type": "boolean"
+          },
+          "PrivatskoleGodkjenning": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PrivatskoleGodkjenningApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Elevtall": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "AntallAnsatte": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnGSFra": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnGSTil": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnVGSFra": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnVGSTil": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Skolekategorier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkolekategoriApiModel"
+            },
+            "nullable": true
+          },
+          "ForeldreRelasjoner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsrRelasjonApiModel"
+            },
+            "nullable": true
+          },
+          "BarnRelasjoner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsrRelasjonApiModel"
+            },
+            "nullable": true
+          },
+          "OppstartsEllerStiftelsesdato": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "DatoEndret": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NsrEnhetEnkelApiModel": {
+        "type": "object",
+        "properties": {
+          "Organisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "FulltNavn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Karakteristikk": {
+            "type": "string",
+            "nullable": true
+          },
+          "Fylkesnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Kommunenummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "ErAktiv": {
+            "type": "boolean"
+          },
+          "ErSkole": {
+            "type": "boolean"
+          },
+          "ErSkoleeier": {
+            "type": "boolean"
+          },
+          "ErGrunnskole": {
+            "type": "boolean"
+          },
+          "ErVideregaaendeSkole": {
+            "type": "boolean"
+          },
+          "ErPrivatskole": {
+            "type": "boolean"
+          },
+          "ErOffentligSkole": {
+            "type": "boolean"
+          },
+          "ErSpesialskole": {
+            "type": "boolean"
+          },
+          "ErGrunnopplaering": {
+            "type": "boolean"
+          },
+          "Skolekategorier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkolekategoriApiModel"
+            },
+            "nullable": true
+          },
+          "DatoEndret": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NsrEnhetEnkelApiModelApiPageResult": {
+        "type": "object",
+        "properties": {
+          "Sidenummer": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "AntallPerSide": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "AntallSider": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "TotaltAntallEnheter": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "EnhetListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsrEnhetEnkelApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NsrEnheterEnkelResponse": {
+        "type": "object",
+        "properties": {
+          "EnhetListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsrEnhetEnkelApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "NsrInnloggetEnhetApiModel": {
+        "type": "object",
+        "properties": {
+          "Epost": {
+            "type": "string",
+            "nullable": true
+          },
+          "Telefon": {
+            "type": "string",
+            "nullable": true
+          },
+          "Mobil": {
+            "type": "string",
+            "nullable": true
+          },
+          "ErInaktivIGSI": {
+            "type": "boolean"
+          },
+          "InaktivIGSIDato": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "Organisasjonsnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Karakteristikk": {
+            "type": "string",
+            "nullable": true
+          },
+          "FulltNavn": {
+            "type": "string",
+            "nullable": true
+          },
+          "Fylke": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FylkeApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Kommune": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KommuneApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Beliggenhetsadresse": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdresseApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Postadresse": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdresseApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Koordinat": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KoordinatApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Internettadresse": {
+            "type": "string",
+            "nullable": true
+          },
+          "Maalform": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MaalformApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Organisasjonsform": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OrganisasjonsformApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Naeringskoder": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnhetNaeringskodeApiModel"
+            },
+            "nullable": true
+          },
+          "Hjelpeenhetskode": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Hjelpeenhetskode"
+              }
+            ],
+            "nullable": true
+          },
+          "Utgaattype": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UtgaattypeApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "UtgaattDato": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ErAktiv": {
+            "type": "boolean"
+          },
+          "ErEkskludert": {
+            "type": "boolean"
+          },
+          "ErSkole": {
+            "type": "boolean"
+          },
+          "ErSkoleeier": {
+            "type": "boolean"
+          },
+          "ErGrunnskole": {
+            "type": "boolean"
+          },
+          "ErPrivatskole": {
+            "type": "boolean"
+          },
+          "ErOffentligSkole": {
+            "type": "boolean"
+          },
+          "ErVideregaaendeSkole": {
+            "type": "boolean"
+          },
+          "ErSpesialskole": {
+            "type": "boolean"
+          },
+          "ErGrunnopplaering": {
+            "type": "boolean"
+          },
+          "PrivatskoleGodkjenning": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PrivatskoleGodkjenningApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Elevtall": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "AntallAnsatte": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnGSFra": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnGSTil": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnVGSFra": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "SkoletrinnVGSTil": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Skolekategorier": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkolekategoriApiModel"
+            },
+            "nullable": true
+          },
+          "ForeldreRelasjoner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsrRelasjonApiModel"
+            },
+            "nullable": true
+          },
+          "BarnRelasjoner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NsrRelasjonApiModel"
+            },
+            "nullable": true
+          },
+          "OppstartsEllerStiftelsesdato": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "DatoEndret": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "NsrRelasjonApiModel": {
+        "type": "object",
+        "properties": {
+          "Enhet": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EnhetMinimumApiModel"
+              }
+            ],
+            "nullable": true
+          },
+          "Relasjonstype": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RelasjonstypeApiModel"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OrganisasjonsformApiModel": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "OrganisasjonsformResponse": {
+        "type": "object",
+        "properties": {
+          "OrganisasjonsformListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganisasjonsformApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PrivatskoleGodkjenningApiModel": {
+        "type": "object",
+        "properties": {
+          "Godkjenningslov": {
+            "type": "string",
+            "nullable": true
+          },
+          "GodkjentStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "GodkjentStatusTekst": {
+            "type": "string",
+            "nullable": true
+          },
+          "ErAktiv": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RelasjonstypeApiModel": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RelasjonstypeResponse": {
+        "type": "object",
+        "properties": {
+          "RelasjonstypeListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RelasjonstypeApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SkolekategoriApiModel": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SkolekategoriResponse": {
+        "type": "object",
+        "properties": {
+          "SkolekategoriListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkolekategoriApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SoekNsrApiModel": {
+        "type": "object",
+        "properties": {
+          "FritekstSoek": {
+            "type": "string",
+            "nullable": true
+          },
+          "Naeringskode": {
+            "type": "string",
+            "nullable": true
+          },
+          "SkolekategoriId": {
+            "type": "string",
+            "nullable": true
+          },
+          "Fylkesnummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "Kommunenummer": {
+            "type": "string",
+            "nullable": true
+          },
+          "InkluderNedlagte": {
+            "type": "boolean"
+          },
+          "InkluderAktive": {
+            "type": "boolean"
+          },
+          "InkluderSkoler": {
+            "type": "boolean"
+          },
+          "InkluderEiere": {
+            "type": "boolean"
+          },
+          "InkluderAndreEnheter": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UtgaattypeApiModel": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string",
+            "nullable": true
+          },
+          "Navn": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UtgaattypeResponse": {
+        "type": "object",
+        "properties": {
+          "UtgaattypeListe": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UtgaattypeApiModel"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "basic": {
+        "type": "http",
+        "description": "Example: basic xYzXYZxyz=",
+        "scheme": "basic"
+      }
+    }
+  },
+  "security": [
+    {
+      "basic": []
+    }
+  ]
+}
